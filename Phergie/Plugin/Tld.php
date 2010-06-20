@@ -29,7 +29,6 @@
  * @author   Phergie Development Team <team@phergie.org>
  * @license  http://phergie.org/license New BSD License
  * @link     http://pear.phergie.org/package/Phergie_Plugin_Tld
- * @uses     Phergie_Plugin_Http pear.phergie.org
  *
  * @pluginDesc Provides information for a top level domain.
  */
@@ -216,7 +215,7 @@ class Phergie_Plugin_Tld extends Phergie_Plugin_Abstract
      *
      * @param string $tld TLD to search for
      * 
-     * @return string Definition of the given TLD
+     * @return mixed Definition of the given TLD as a string or false if unknown
      */
     public function getTld($tld)
     {

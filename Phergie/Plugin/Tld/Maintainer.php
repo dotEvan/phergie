@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Phergie
  *
@@ -12,7 +13,7 @@
  * http://phergie.org/license
  *
  * @category  Phergie
- * @package   Phergie
+ * @package   Phergie_Plugin_Url
  * @author    Phergie Development Team <team@phergie.org>
  * @copyright 2008-2010 Phergie Development Team (http://phergie.org)
  * @license   http://phergie.org/license New BSD License
@@ -20,25 +21,31 @@
  */
 
 /**
- * Exceptions related to handling databases for plugins.
+ * Provides database maintenance functionality for the Tld plugin.
  *
  * @category Phergie
- * @package  Phergie
+ * @package  Phergie_Plugin_Tld
  * @author   Phergie Development Team <team@phergie.org>
  * @license  http://phergie.org/license New BSD License
  * @link     http://pear.phergie.org/package/Phergie
+ *
+ * @pluginDesc Provides information for a top level domain.
  */
-
-class Phergie_Db_Exception extends Phergie_Exception
+class Phergie_Plugin_Tld_Maintainer extends Phergie_Db_Maintainer
 {
     /**
-     * Error indicating that a directory needed to support database
-     * functionality was unable to be created.
+     * Initializes the class and creates keyword to callback relationships
+     * 
      */
-    const ERR_UNABLE_TO_CREATE_DIRECTORY = 1;
+    public function __construct()
+    {
+        $config = new Phergie_Db_MaintainerConfig();
+        $config->addCommand('init', 'initializeDatabase');
 
-    /**
-     * Error indicating that a defined callback is unable to be called.
-     */
-    const ERR_UNABLE_TO_INVOKE_CALLBACK = 2;
+        parent::__construct($config);
+    }
+
+    public function initializeDatabase() {
+    }
 }
+

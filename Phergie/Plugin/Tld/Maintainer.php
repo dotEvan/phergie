@@ -34,6 +34,10 @@
 class Phergie_Plugin_Tld_Maintainer extends Phergie_Db_Maintainer
 {
     /**
+     * @var string location of the Sqlite database
+     */
+    protected $dbFile;
+    /**
      * Initializes the class and creates keyword to callback relationships
      * 
      */
@@ -41,6 +45,9 @@ class Phergie_Plugin_Tld_Maintainer extends Phergie_Db_Maintainer
     {
         $config = new Phergie_Db_MaintainerConfig();
         $config->addCommand('init', 'initializeDatabase');
+
+        $tldPlugin = new Phergie_Plugin_Tld();
+        $this->dbFile = $tldPlugin->getSqliteDbFilePath();
 
         parent::__construct($config);
     }

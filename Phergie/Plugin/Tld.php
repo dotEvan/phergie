@@ -39,6 +39,7 @@ class Phergie_Plugin_Tld extends Phergie_Plugin_Abstract
      * @var PDO
      */
     protected $db;
+    
     /**
      * Some fixed TLD values, keys must be lowercase
      * @var array

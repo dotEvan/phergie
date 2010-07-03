@@ -43,6 +43,36 @@ if (!isset($argc)) {
 
     // If configuration files were specified, override default behavior
     if (count($argv) > 0) {
+        // If the first arugment is 'maintenance',
+        // enter database maintenance mode.
+        if ($argv[0] == 'maintenance') {
+            try {
+                array_shift($argv);
+                $plugin = array_shift($argv);
+                $keyword = array_shift($argv);
+                if ($plugin && $keyword) {
+                    $maintenanceClassName = "Phergie_Plugin_{$plugin}_Maintainer";
+                    if (!class_exists($maintenanceClassName)) {
+                        throw new Phergie_Db_Exception(
+                            "Unable to find a maintenance class for $plugin",
+                            Phergie_Db_Exception::ERR_PLUGIN_MAINTENANCE_CLASS_DOES_NOT_EXIST
+                        );
+                    }
+                    $maintenanceClass = new $maintenanceClassName();
+                    $maintenanceClass->dispatchKeyword($keyword, $argv);
+                } else {
+                    throw new Phergie_Db_Exception(
+                        "Plugin and/or keyword are required.",
+                        Phergie_Db_Exception::ERR_PLUGIN_MAINTENANCE_PLUGIN_AND_KEYWORD_REQUIRED
+                    );
+                }
+            } catch (Phergie_Exception $e) {
+                echo "{$e->getMessage()}\n";
+            }
+
+            exit;
+
+        }
         $config = new Phergie_Config;
         foreach ($argv as $file) {
             $config->read($file);

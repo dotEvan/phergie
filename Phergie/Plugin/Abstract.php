@@ -304,6 +304,17 @@ abstract class Phergie_Plugin_Abstract
     }
 
     /**
+     * Retrieves location of the Sqlite database
+     * 
+     * @return string path to Sqlite database
+     */
+    public function getSqliteDbFilePath()
+    {
+        return dirname(__FILE__)
+            . "/{$this->getName()}/{$this->getName()}.db";
+    }
+
+    /**
      * Handler for when the plugin is initially loaded - useful for checking
      * runtime dependencies or performing any setup necessary for the plugin
      * to function properly such as initializing a database.

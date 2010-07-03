@@ -55,7 +55,15 @@ abstract class Phergie_Db_Maintainer
 
     public function dispatchKeyword($keyword, array $arguments = array())
     {
-        $this->{$this->config->getCallback($keyword)}($arguments);
+        $callback = $this->config->getCallback($keyword);
+        if ($callback) {
+            $this->{$callback}($arguments);
+        } else {
+            throw new Phergie_Db_Exception(
+                "{$keyword} does not have an associated task.",
+                Phergie_Db_Exception::ERR_KEYWORD_HAS_NO_CALLBACK
+            );
+        }
     }
     
 }

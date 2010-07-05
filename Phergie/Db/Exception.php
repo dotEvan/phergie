@@ -58,4 +58,9 @@ class Phergie_Db_Exception extends Phergie_Exception
      * Error indicating that a keyword does not have an associated callback.
      */
     const ERR_KEYWORD_HAS_NO_CALLBACK = 5;
+
+    /**
+     * Error indicating that the keywords args are incorrect
+     */
+    const ERR_KEYWORD_ARGS_INCORRECT = 6;
 }

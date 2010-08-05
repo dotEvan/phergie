@@ -29,164 +29,59 @@
  * @author   Phergie Development Team <team@phergie.org>
  * @license  http://phergie.org/license New BSD License
  * @link     http://pear.phergie.org/package/Phergie_Plugin_Tld
- *
- * @pluginDesc Provides information for a top level domain.
+ * @uses     extension PDO
+ * @uses     extension pdo_sqlite
  */
 class Phergie_Plugin_Tld extends Phergie_Plugin_Abstract
 {
     /**
-     * connection to the database
+     * Connection to the database
+     *
      * @var PDO
      */
     protected $db;
-    /**
-     * Some fixed TLD values, keys must be lowercase
-     * @var array
-     */
-    protected static $fixedTlds;
 
     /**
-     * Prepared statement for selecting a single tld
+     * Prepared statement for selecting a single TLD
+     *
      * @var PDOStatement
      */
     protected $select;
 
     /**
-     * Prepared statement for selecting all tlds
+     * Prepared statement for selecting all TLDs
+     *
      * @var PDOStatement
      */
     protected $selectAll;
 
     /**
-     * Checks for dependencies, sets up database and hard coded values
+     * Checks for dependencies and sets up the database and hard-coded values.
      *
      * @return void
      */
     public function onLoad()
     {
-        $help = $this->getPluginHandler()->getPlugin('Help');
-        $help->register($this);
-
-        if (!is_array(self::$fixedTlds)) {
-            self::$fixedTlds = array(
-                'phergie' => 'You can find Phergie at http://www.phergie.org',
-                'spoon'   => 'Don\'t you know? There is no spoon!',
-                'poo'     => 'Do you really think that\'s funny?',
-                'root'    => 'Diagnostic marker to indicate '
-                . 'a root zone load was not truncated.'
-            );
+        if (!extension_loaded('PDO') || !extension_loaded('pdo_sqlite')) {
+            $this->fail('PDO and pdo_sqlite extensions must be installed');
         }
 
+        $dbFile = dirname(__FILE__) . '/Tld/tld.db';
         try {
-            $dbFile = dirname(__FILE__) . '/Tld/tld.db';
-            $dbManager = new Phergie_Db_Sqlite($dbFile);
-            $this->db = $dbManager->getDb();
-            if (!$dbManager->hasTable('tld')) {
-                $query = 'CREATE TABLE tld ('
-                        . 'tld VARCHAR(20), '
-                        . 'type VARCHAR(20), '
-                        . 'description VARCHAR(255))';
+            $this->db = new PDO('sqlite:' . $dbFile);
 
-                $this->db->exec($query);
+            $this->select = $this->db->prepare('
+                SELECT type, description
+                FROM tld
+                WHERE LOWER(tld) = LOWER(:tld)
+            ');
 
-                // prepare a statement to populate the table with
-                // tld information
-                $insert = $this->db->prepare(
-                    'INSERT INTO tld
-                    (tld, type, description)
-                    VALUES (:tld, :type, :description)'
-                );
-
-                // grab tld data from iana.org...
-                $contents = file_get_contents(
-                    'http://www.iana.org/domains/root/db/'
-                );
-
-                // ...and then parse it out
-                $regex = '{<tr class="iana-group[^>]*><td><a[^>]*>\s*\.?([^<]+)\s*'
-                        . '(?:<br/><span[^>]*>[^<]*</span>)?</a></td><td>\s*'
-                        . '([^<]+)\s*</td><td>\s*([^<]+)\s*}i';
-                preg_match_all($regex, $contents, $matches, PREG_SET_ORDER);
-
-                foreach ($matches as $match) {
-                    list(, $tld, $type, $description) = array_pad($match, 4, null);
-                    $type = trim(strtolower($type));
-                    if ($type != 'test') {
-                        $tld = trim(strtolower($tld));
-                        $description = trim($description);
-
-                        switch ($tld) {
-
-                        case 'com':
-                            $description = 'Commercial';
-                            break;
-
-                        case 'info':
-                            $description = 'Information';
-                            break;
-
-                        case 'net':
-                            $description = 'Network';
-                            break;
-
-                        case 'org':
-                            $description = 'Organization';
-                            break;
-
-                        case 'edu':
-                            $description = 'Educational';
-                            break;
-
-                        case 'name':
-                            $description = 'Individuals, by name';
-                            break;
-                        }
-
-                        if (empty($tld) || empty($description)) {
-                            continue;
-                        }
-
-                        $regex = '{(^(?:Reserved|Restricted)\s*(?:exclusively\s*)?'
-                                 . '(?:for|to)\s*(?:members of\s*)?(?:the|support)?'
-                                 . '\s*|\s*as advised.*$)}i';
-                        $description = preg_replace($regex, '', $description);
-                        $description = ucfirst(trim($description));
-
-                        $data = array_map(
-                            'html_entity_decode', array(
-                                'tld' => $tld,
-                                'type' => $type,
-                                'description' => $description
-                            )
-                        );
-
-                        $insert->execute($data);
-                    }
-                }
-
-                unset(
-                    $insert,
-                    $matches,
-                    $match,
-                    $contents,
-                    $tld,
-                    $type,
-                    $description,
-                    $data,
-                    $regex
-                );
-            }
-
-            // Create a prepared statements for retrieving TLDs
-            $this->select = $this->db->prepare(
-                'SELECT type, description '
-                . 'FROM tld WHERE LOWER(tld) = LOWER(:tld)'
-            );
-
-            $this->selectAll = $this->db->prepare(
-                'SELECT tld, type, description FROM tld'
-            );
+            $this->selectAll = $this->db->prepare('
+                SELECT tld, type, description
+                FROM btld
+            ');
         } catch (PDOException $e) {
+            $this->getPluginHandler()->removePlugin($this);
         }
     }
 
@@ -196,8 +91,6 @@ class Phergie_Plugin_Tld extends Phergie_Plugin_Abstract
      * @param string $tld tld to process
      *
      * @return null
-     *
-     * @pluginCmd .[tld] request details about the tld
      */
     public function onCommandTld($tld)
     {
@@ -214,20 +107,16 @@ class Phergie_Plugin_Tld extends Phergie_Plugin_Abstract
      * Retrieves the definition for a given TLD if it exists
      *
      * @param string $tld TLD to search for
-     * 
+     *
      * @return mixed Definition of the given TLD as a string or false if unknown
      */
     public function getTld($tld)
     {
         $tld = trim(strtolower($tld));
-        if (isset(self::$fixedTlds[$tld])) {
-            return self::$fixedTlds[$tld];
-        } else {
-            if ($this->select->execute(array('tld' => $tld))) {
-                $tlds = $this->select->fetch();
-                if (is_array($tlds)) {
-                    return '(' . $tlds['type'] . ') ' . $tlds['description'];
-                }
+        if ($this->select->execute(array('tld' => $tld))) {
+            $tlds = $this->select->fetch();
+            if (is_array($tlds)) {
+                return '(' . $tlds['type'] . ') ' . $tlds['description'];
             }
         }
         return false;
@@ -236,7 +125,8 @@ class Phergie_Plugin_Tld extends Phergie_Plugin_Abstract
     /**
      * Retrieves a list of all the TLDs and their definitions
      *
-     * @return array Array of all the TLDs and their definitions
+     * @return mixed Array of all the TLDs and their definitions or FALSE on
+      *        failure
      */
     public function getTlds()
     {
@@ -250,11 +140,9 @@ class Phergie_Plugin_Tld extends Phergie_Plugin_Abstract
                         . $tld['description'];
                     }
                 }
-                unset($tlds);
                 return $tldinfo;
             }
         }
         return false;
     }
 }
-

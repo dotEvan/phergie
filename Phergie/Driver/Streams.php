@@ -219,6 +219,14 @@ class Phergie_Driver_Streams extends Phergie_Driver_Abstract
      */
     public function getEvent()
     {
+        // Check the socket is still active
+        if (feof($this->socket)) {
+            throw new Phergie_Driver_Exception(
+                'EOF detected on socket',
+                Phergie_Driver_Exception::ERR_CONNECTION_READ_FAILED
+            );
+        }
+
         // Check for a new event on the current connection
         $buffer = fgets($this->socket, 512);
 
@@ -235,6 +243,7 @@ class Phergie_Driver_Streams extends Phergie_Driver_Abstract
 
             // Parse the command and arguments
             list($cmd, $args) = array_pad(explode(' ', $buffer, 2), 2, null);
+            $hostmask = new Phergie_Hostmask(null, null, $this->connection->getHost());
 
         } else {
             // If the event could be from the server or a user...
@@ -263,8 +272,9 @@ class Phergie_Driver_Streams extends Phergie_Driver_Abstract
 
         case 'privmsg':
         case 'notice':
-            $ctcp = substr(strstr($args, ':'), 1);
-            if (substr($ctcp, 0, 1) === "\x01" && substr($ctcp, -1) === "\x01") {
+            $args = $this->parseArguments($args, 2);
+            list($source, $ctcp) = $args;
+            if (substr($ctcp, 0, 1) === "\001" && substr($ctcp, -1) === "\001") {
                 $ctcp = substr($ctcp, 1, -1);
                 $reply = ($cmd == 'notice');
                 list($cmd, $args) = array_pad(explode(' ', $ctcp, 2), 2, null);
@@ -285,7 +295,7 @@ class Phergie_Driver_Streams extends Phergie_Driver_Abstract
                     }
                     break;
                 case 'action':
-                    $args = array($this->getConnection()->getNick(), $args);
+                    $args = array($source, $args);
                     break;
 
                 default:
@@ -293,11 +303,9 @@ class Phergie_Driver_Streams extends Phergie_Driver_Abstract
                     if ($reply) {
                         $cmd .= 'Response';
                     }
-                    $args = array($this->getConnection()->getNick(), $ctcp);
+                    $args = array($source, $args);
                     break;
                 }
-            } else {
-                $args = $this->parseArguments($args, 2);
             }
             break;
 

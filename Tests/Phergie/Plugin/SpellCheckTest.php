@@ -43,7 +43,7 @@ class Phergie_Plugin_SpellCheckTest extends Phergie_Plugin_TestCase
     /**
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
-     * 
+     *
      * @return void
      */
     protected function setUp()
@@ -52,12 +52,12 @@ class Phergie_Plugin_SpellCheckTest extends Phergie_Plugin_TestCase
 
         $this->spell = new Phergie_Plugin_SpellCheck();
         $this->setPlugin(new Phergie_Plugin_Command());
-        
+
         $config = $this->plugin->getConfig();
-        
+
         $handler = new Phergie_Plugin_Handler($config, $this->handler);
         $this->plugin->setPluginHandler($handler);
-        
+
         $handler->addPlugin($this->plugin);
         $handler->addPlugin($this->spell);
 
@@ -73,7 +73,7 @@ class Phergie_Plugin_SpellCheckTest extends Phergie_Plugin_TestCase
     public function testSpell()
     {
         $this->spell->onLoad();
-        
+
         $this->copyEvent();
         $this->plugin->onPrivMsg();
         $this->assertDoesNotHaveEvent(Phergie_Event_Command::TYPE_PRIVMSG);
@@ -87,22 +87,22 @@ class Phergie_Plugin_SpellCheckTest extends Phergie_Plugin_TestCase
     public function testSpellTest()
     {
         $this->spell->onLoad();
-        
+
         $this->copyEvent();
         $this->plugin->onPrivMsg();
 
         $events = $this->getResponseEvents(Phergie_Event_Command::TYPE_PRIVMSG);
-        
+
         $this->assertEquals(1, count($events));
         foreach ($events as $event) {
             $args = $event->getArguments();
-            
+
             $this->assertEquals('#phergie', $args[0]);
-            
+
             $this->assertContains('CheckSpellUser:', $args[1]);
             $this->assertContains('test', $args[1]);
             $this->assertContains('correct', $args[1]);
-        }            
+        }
     }
 
     /**
@@ -113,18 +113,18 @@ class Phergie_Plugin_SpellCheckTest extends Phergie_Plugin_TestCase
     public function testSpellTestz()
     {
         $this->spell->onLoad();
-        
+
         $this->copyEvent();
         $this->plugin->onPrivMsg();
-        
+
         $events = $this->getResponseEvents(Phergie_Event_Command::TYPE_PRIVMSG);
-        
+
         $this->assertEquals(1, count($events));
         foreach ($events as $event) {
             $args = $event->getArguments();
-            
+
             $this->assertEquals('#phergie', $args[0]);
-            
+
             $this->assertContains('CheckSpellUser:', $args[1]);
             $this->assertRegExp('/([a-z]+, ){4}/', $args[1]);
             $this->assertContains('testz', $args[1]);
@@ -140,21 +140,21 @@ class Phergie_Plugin_SpellCheckTest extends Phergie_Plugin_TestCase
     public function testSpellMoreSuggestions()
     {
         $config = $this->spell->getConfig();
-        
+
         $this->copyEvent();
         $config['spellcheck.limit'] = 6;
-        
+
         $this->spell->onLoad();
         $this->plugin->onPrivMsg();
-        
+
         $events = $this->getResponseEvents(Phergie_Event_Command::TYPE_PRIVMSG);
-        
+
         $this->assertEquals(1, count($events));
         foreach ($events as $event) {
             $args = $event->getArguments();
-            
+
             $this->assertEquals('#phergie', $args[0]);
-            
+
             $this->assertContains('CheckSpellUser:', $args[1]);
             $this->assertRegExp('/([a-z]+, ){5}/', $args[1]);
             $this->assertContains('testz', $args[1]);
@@ -170,26 +170,26 @@ class Phergie_Plugin_SpellCheckTest extends Phergie_Plugin_TestCase
     public function testSpellNoSuggestions()
     {
         $this->spell->onLoad();
-        
+
         $this->copyEvent();
         $this->plugin->onPrivMsg();
-        
+
         $events = $this->getResponseEvents(Phergie_Event_Command::TYPE_PRIVMSG);
-        
+
         $this->assertEquals(1, count($events));
         foreach ($events as $event) {
             $args = $event->getArguments();
-            
+
             $this->assertEquals('#phergie', $args[0]);
-            
+
             $this->assertContains('CheckSpellUser:', $args[1]);
             $this->assertContains('find any suggestions', $args[1]);
         }
     }
-    
+
     /**
      * Copy event from command to spell plugin
-     * 
+     *
      * @return void
      */
     protected function copyEvent()

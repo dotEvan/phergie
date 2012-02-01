@@ -170,7 +170,7 @@ abstract class Phergie_Plugin_TestCase extends PHPUnit_Framework_TestCase
                     'Tests cannot be run before plugin is set'
             );
         }
-        
+
         // Clean the event handler... important!
         $this->handler->clearEvents();
 

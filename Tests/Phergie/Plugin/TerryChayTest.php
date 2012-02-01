@@ -71,7 +71,7 @@ class Phergie_Plugin_TerryChayTest extends Phergie_Plugin_TestCase
         $this->assertDoesNotHaveEvent(Phergie_Event_Command::TYPE_PRIVMSG,
                               'string "terrychay" should not invoke a response');
     }
-    
+
     /**
      * @event Phergie_Event_Request::privmsg
      * @eventArg #zftalk

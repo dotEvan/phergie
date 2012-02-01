@@ -34,7 +34,7 @@ class Phergie_Plugin_PingTest extends Phergie_Plugin_TestCase
 {
     protected $config = array('ping.ping'  => 10,
                               'ping.event' => 300);
-    
+
     /**
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
@@ -78,9 +78,9 @@ class Phergie_Plugin_PingTest extends Phergie_Plugin_TestCase
     {
         $time = time() - 1;
         // We need to make sure time() is going to be creater next time it is called
-        
+
         $this->plugin->onConnect();
-        $this->assertNull($this->plugin->getLastPing(), 
+        $this->assertNull($this->plugin->getLastPing(),
                           'onConnect should set last ping to null');
         $this->assertGreaterThan($time,
                                  $this->plugin->getLastEvent(),
@@ -129,7 +129,7 @@ class Phergie_Plugin_PingTest extends Phergie_Plugin_TestCase
         $this->plugin->onTick();
         $this->assertHasEvent(Phergie_Event_Command::TYPE_QUIT);
     }
-    
+
     /**
      * Test that the plugin issues a quit when the ping threashold
      * has been exceeded

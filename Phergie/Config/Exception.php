@@ -1,6 +1,6 @@
 <?php
 /**
- * Phergie 
+ * Phergie
  *
  * PHP version 5
  *
@@ -11,7 +11,7 @@
  * It is also available through the world-wide-web at this URL:
  * http://phergie.org/license
  *
- * @category  Phergie 
+ * @category  Phergie
  * @package   Phergie
  * @author    Phergie Development Team <team@phergie.org>
  * @copyright 2008-2010 Phergie Development Team (http://phergie.org)
@@ -22,7 +22,7 @@
 /**
  * Exception related to configuration.
  *
- * @category Phergie 
+ * @category Phergie
  * @package  Phergie
  * @author   Phergie Development Team <team@phergie.org>
  * @license  http://phergie.org/license New BSD License
@@ -31,14 +31,14 @@
 class Phergie_Config_Exception extends Phergie_Exception
 {
     /**
-     * Error indicating that an attempt was made to read a configuration 
+     * Error indicating that an attempt was made to read a configuration
      * file that could not be executed
      */
     const ERR_FILE_NOT_EXECUTABLE = 1;
 
     /**
-     * Error indicating that a read configuration file does not return an 
+     * Error indicating that a read configuration file does not return an
      * array
      */
-    const ERR_ARRAY_NOT_RETURNED = 2; 
+    const ERR_ARRAY_NOT_RETURNED = 2;
 }

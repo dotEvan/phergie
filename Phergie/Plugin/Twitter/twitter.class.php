@@ -22,27 +22,27 @@ class Twitter {
      * Do not specify user/password in URL
      */
     protected $baseUrl = 'http://twitter.com/';
-    
+
     /**
      * Full base URL (includes user/pass)
      *
      * (created in Init)
      */
     protected $baseUrlFull = null;
-    
+
     /**
      * Twitter API user
      */
     protected $user;
-    
+
     /**
      * Twitter API password
      */
     protected $pass;
-    
+
     /**
      * Constructor; sets up configuration.
-     * 
+     *
      * @param string $user Twitter user name; null for limited read-only access
      * @param string $pass Twitter password; null for limited read-only access
      */
@@ -101,21 +101,21 @@ class Twitter {
         }
         return $tweet;
     }
-    
+
     /**
      * fetches mentions for a user
      */
     public function getMentions($sinceId=null, $count=20) {
         return json_decode(file_get_contents($this->getUrlMentions($sinceId, $count)));
     }
-    
+
     /**
      * Fetches followers for a user
      */
     public function getFollowers($cursor=-1) {
         return json_decode(file_get_contents($this->getUrlFollowers($cursor)));
     }
-    
+
     /**
      * Follow a userid
      */
@@ -139,14 +139,14 @@ class Twitter {
         $response = json_decode($response);
         return $response;
     }
-    
+
     /**
      * fetches DMs for a user
      */
     public function getDMs($sinceId=null, $count=20, $page=1) {
         return json_decode(file_get_contents($this->getUrlDMs($sinceId, $count, $page)));
     }
-    
+
     /**
      * Send DM
      */
@@ -202,14 +202,14 @@ class Twitter {
         $response = json_decode($response);
         return $response;
     }
-    
+
     /**
      * Returns the base API URL
      */
     protected function getUrlApi() {
         return $this->baseUrlFull;
     }
-    
+
     /**
      * Returns the status URL
      *
@@ -218,28 +218,28 @@ class Twitter {
     protected function getUrlStatus($num) {
         return $this->getUrlApi() . 'statuses/show/'. urlencode($num) .'.json';
     }
-    
+
     /**
      * Returns the user timeline URL
      */
     protected function getUrlUserTimeline($user) {
         return $this->getUrlApi() . 'statuses/user_timeline/'. urlencode($user) .'.json';
     }
-    
+
     /**
      * Returns the tweet posting URL
      */
     protected function getUrlTweetPost() {
         return $this->getUrlApi() . 'statuses/update.json';
     }
-    
+
     /**
      * Output URL: status
      */
     public function getUrlOutputStatus(StdClass $tweet) {
         return $this->baseUrl . urlencode($tweet->user->screen_name) . '/statuses/' . urlencode($tweet->id);
     }
-    
+
     /**
      * Return mentions URL
      */
@@ -250,21 +250,21 @@ class Twitter {
         }
         return $url;
     }
-    
+
     /**
      * Returns the followers URL
      */
     public function getUrlFollowers($cursor=-1) {
         return $this->baseUrlFull . 'statuses/followers.json?cursor=' . ((int)$cursor);
     }
-    
+
     /**
      * Returns the follow-user URL
      */
     public function getUrlFollow($userid) {
         return $this->baseUrlFull . 'friendships/create/' . ((int) $userid) . '.json';
     }
-    
+
     /**
      * Returns the get DMs URL
      */

@@ -2,7 +2,7 @@
 -- About LogViewer
 -----------------------------------------------------------------------------
 
-The purpose of this tool is to make an HTML display of the Logs made by the 
+The purpose of this tool is to make an HTML display of the Logs made by the
 Logging plugin for Phergie stored in SQLite database.
 
 -----------------------------------------------------------------------------
@@ -20,5 +20,5 @@ The only configuration needed at this point in time is to edit the $database
 variable in the top of the index.php to point to the appropriate Phergie
 log file.
 
-Stuff may get more complicated in the future ;)  But this is meant to be 
+Stuff may get more complicated in the future ;)  But this is meant to be
 simple for now.
